@@ -4,10 +4,23 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/app_name"
-    />
+	<!--<TextView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/app_name"
+		/>-->
+	<!-- Eventually remove this and insert buttons programmatically -->
+    <Button
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:drawableTop="@drawable/play"
+		android:text="Trololo!"
+		android:textColor="#ffffff"
+		android:shadowColor="#000000"
+		android:shadowDx="0.0"
+		android:shadowDy="0.0"
+		android:shadowRadius="1.0"
+		android:background="#00000000"
+		/>
 </LinearLayout>
 
