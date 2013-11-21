@@ -32,6 +32,12 @@ public class Soundboard extends Activity
 	}
 	public View getView(int position, View convertView, ViewGroup parent) {
 	    if (convertView == null) {
+		/* Should we reuse the view?  How can we even do this
+		 * in the first place; aren't we seeing different
+		 * instances of the view when in a list/grid?  And
+		 * what about events...  If we have a list of buttons,
+		 * can they all respond differently if we reuse the
+		 * view? */
 		LayoutInflater inflater = ((Activity)context).getLayoutInflater();
 		/* Not *completely* sure on this command.  Should I
 		 * use parent?  Should I use null?  Not fully
