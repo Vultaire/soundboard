@@ -2,6 +2,7 @@ package net.vultaire.soundboard;
 
 import java.io.File;
 import java.util.List;
+import java.util.ArrayList;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,7 +23,17 @@ public class Soundboard extends Activity
 {
     private AudioManager am;
     private OnAudioFocusChangeListener afChangeListener;
-    private MediaPlayer mp;
+    private ArrayList<MediaPlayer> mps = new ArrayList<MediaPlayer>();
+
+    class ClickListener implements View.OnClickListener {
+	File f;
+	ClickListener(File f) {
+	    this.f = f;
+	}
+	public void onClick(View v) {
+	    playFile(this.f);
+	}
+    }
 
     class ButtonArrayAdapter extends ArrayAdapter<File> {
 	Context context;
@@ -50,6 +61,7 @@ public class Soundboard extends Activity
 	    }
 	    List<String> segs = Uri.fromFile(objects[position]).getPathSegments();
 	    ((Button)convertView).setText(segs.get(segs.size()-1));
+	    ((Button)convertView).setOnClickListener(new ClickListener(objects[position]));
 	    return convertView;
 	}
     }
@@ -78,12 +90,13 @@ public class Soundboard extends Activity
 
     @Override
     public void onResume() {
+	startAudio();
 	// File f = new File(
 	//     new File(
 	//         Environment.getExternalStorageDirectory().getAbsoluteFile(),
 	// 	"Soundboard"),
 	//     "trololo.mp3");
-	// startAudio(f);
+	// playFile(f);
 	super.onResume();
     }
 
@@ -99,29 +112,28 @@ public class Soundboard extends Activity
 	super.onStop();
     }
 
-    public void startAudio(File soundFile) {
+    public void startAudio() {
 	am = (AudioManager) this.getSystemService(this.AUDIO_SERVICE);
 	am.requestAudioFocus(afChangeListener,
 			     AudioManager.STREAM_MUSIC,
 			     AudioManager.AUDIOFOCUS_GAIN);
+    }
 
+    public void playFile(File soundFile) {
 	class MyCompletionListener implements OnCompletionListener {
-	    private Soundboard sb;
-	    public MyCompletionListener(Soundboard sb) {
-		this.sb = sb;
-	    }
 	    public void onCompletion(MediaPlayer mp) {
-		sb.releaseAudio();
+		mp.release();
 	    }
 	}
 
-	mp = MediaPlayer.create(this, Uri.fromFile(soundFile));
-	mp.setOnCompletionListener(new MyCompletionListener(this));
+	MediaPlayer mp = MediaPlayer.create(this, Uri.fromFile(soundFile));
+	mps.add(mp);
+	mp.setOnCompletionListener(new MyCompletionListener());
 	mp.start();
     }
 
     public void releaseAudio() {
-	if (mp != null) {
+	for (MediaPlayer mp : mps) {
 	    mp.release();
 	    mp = null;
 	}
