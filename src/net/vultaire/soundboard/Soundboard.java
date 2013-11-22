@@ -21,7 +21,7 @@ public class Soundboard extends Activity
 {
     private AudioManager am;
     private OnAudioFocusChangeListener afChangeListener;
-    private ArrayList<MediaPlayer> mps = new ArrayList<MediaPlayer>();
+    private ArrayList<SoundButton> sbs = new ArrayList<SoundButton>();
 
     /** Called when the activity is first created. */
     @Override
@@ -77,18 +77,18 @@ public class Soundboard extends Activity
     }
 
     public MediaPlayer playFile(SoundButton soundButton) {
+	sbs.add(soundButton);
 	MediaPlayer mp = MediaPlayer.create(this, Uri.fromFile(soundButton.file));
-	mps.add(mp);
 	mp.setOnCompletionListener(new CompletionListener(soundButton));
 	mp.start();
 	return mp;
     }
 
     public void releaseAudio() {
-	for (MediaPlayer mp : mps) {
-	    mp.release();
+	for (SoundButton sb : sbs) {
+	    sb.stop();
 	}
-	mps = new ArrayList<MediaPlayer>();
+	sbs = new ArrayList<SoundButton>();
 
 	if (am != null) {
 	    am.abandonAudioFocus(afChangeListener);
