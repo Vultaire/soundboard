@@ -8,7 +8,7 @@
 		android:id="@+id/grid_view"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:columnWidth="128px"
+		android:columnWidth="128dp"
 		android:numColumns="auto_fit"
 		android:stretchMode="spacingWidthUniform"
 		/>
