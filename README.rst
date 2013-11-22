@@ -17,3 +17,8 @@ files should now be at your fingertips to play in soundboard fashion.
 
 This is an initial, primitive release, but it does work at a basic
 level.  Feel free to fork this app.  :)
+
+For those who want to simply run this without building it themselves,
+I've uploaded an APK to my personal web site:
+http://www.vultaire.net/files/android/soundboard/soundboard-release.apk
+
