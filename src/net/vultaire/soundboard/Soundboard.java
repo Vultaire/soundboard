@@ -1,7 +1,10 @@
 package net.vultaire.soundboard;
 
+import java.io.File;
+import java.util.List;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
@@ -13,6 +16,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.LayoutInflater;
+import android.net.Uri;
 
 public class Soundboard extends Activity
 {
@@ -20,11 +24,11 @@ public class Soundboard extends Activity
     private OnAudioFocusChangeListener afChangeListener;
     private MediaPlayer mp;
 
-    class ButtonArrayAdapter extends ArrayAdapter<String> {
+    class ButtonArrayAdapter extends ArrayAdapter<File> {
 	Context context;
 	int resource;
-	String[] objects;
-	ButtonArrayAdapter(Context context, int resource, String[] objects) {
+	File[] objects;
+	ButtonArrayAdapter(Context context, int resource, File[] objects) {
 	    super(context, resource, objects);
 	    this.context = context;
 	    this.resource = resource;
@@ -44,7 +48,8 @@ public class Soundboard extends Activity
 		 * understanding the difference yet. */
 		convertView = inflater.inflate(resource, null);
 	    }
-	    ((Button)convertView).setText(objects[position]);
+	    List<String> segs = Uri.fromFile(objects[position]).getPathSegments();
+	    ((Button)convertView).setText(segs.get(segs.size()-1));
 	    return convertView;
 	}
     }
@@ -60,15 +65,25 @@ public class Soundboard extends Activity
 	afChangeListener = new OnAudioFocusChangeListener() {
 	    public void onAudioFocusChange(int focusChange) {}
 	};
-	String[] data = {"Trololo", "Shut up, Beavis!"};
-	ArrayAdapter adapter = new ButtonArrayAdapter(this, R.layout.button, data);
+
+	File[] files = {};
+	String state = Environment.getExternalStorageState();
+	if (externalMediaOk()) {
+	    files = getSoundboardDir().listFiles();
+	}
+	ArrayAdapter adapter = new ButtonArrayAdapter(this, R.layout.button, files);
 	GridView gridView = (GridView) findViewById(R.id.grid_view);
 	gridView.setAdapter(adapter);
     }
 
     @Override
     public void onResume() {
-	startAudio();
+	// File f = new File(
+	//     new File(
+	//         Environment.getExternalStorageDirectory().getAbsoluteFile(),
+	// 	"Soundboard"),
+	//     "trololo.mp3");
+	// startAudio(f);
 	super.onResume();
     }
 
@@ -84,7 +99,7 @@ public class Soundboard extends Activity
 	super.onStop();
     }
 
-    public void startAudio() {
+    public void startAudio(File soundFile) {
 	am = (AudioManager) this.getSystemService(this.AUDIO_SERVICE);
 	am.requestAudioFocus(afChangeListener,
 			     AudioManager.STREAM_MUSIC,
@@ -100,7 +115,7 @@ public class Soundboard extends Activity
 	    }
 	}
 
-	mp = MediaPlayer.create(this, R.raw.trololo);
+	mp = MediaPlayer.create(this, Uri.fromFile(soundFile));
 	mp.setOnCompletionListener(new MyCompletionListener(this));
 	mp.start();
     }
@@ -110,6 +125,24 @@ public class Soundboard extends Activity
 	    mp.release();
 	    mp = null;
 	}
-	am.abandonAudioFocus(afChangeListener);
+	if (am != null) {
+	    am.abandonAudioFocus(afChangeListener);
+	}
+    }
+
+    public boolean externalMediaOk() {
+	String state = Environment.getExternalStorageState();
+	return (Environment.MEDIA_MOUNTED.equals(state)
+		|| Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
+    }
+
+    public File getSoundboardDir() {
+	File dataDir = new File(
+	    Environment.getExternalStorageDirectory().getAbsoluteFile(),
+	    "Soundboard");
+	if (!dataDir.exists()) {
+	    dataDir.mkdir();
+	}
+	return dataDir;
     }
 }
